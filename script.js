@@ -420,10 +420,10 @@ function lerp(t, p1, p2) {
 function generateTilemap() {
     let newMap = [];
     
-    for (i = 0; i < 40; i++) {
+    for (let i = 0; i < 40; i++) {
         let tileRow = [];
         
-        for (j = 0; j < 20; j++) {
+        for (let j = 0; j < 20; j++) {
             tileRow.push(Math.floor(Math.random()*50 + 1));
         }
 
