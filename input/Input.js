@@ -1,11 +1,13 @@
-class Input {
+export class Input {
     constructor(canvas) {
         this.heldKeys = new Set();
+        this.downKeys = new Set();
         this.mouse = {x: 0, y: 0};
         this.mouseClick = false;
 
         addEventListener("keydown", (event) => {
             this.heldKeys.add(event.key);
+            this.downKeys.add(event.key);
         });
 
         addEventListener("keyup", (event) => {
@@ -17,8 +19,8 @@ class Input {
             //const scaleX = canvas.width / rect.width;
             //const scaleY = canvas.height / rect.height;
 
-            mouse.x = event.clientX - rect.left;
-            mouse.y = event.clientY - rect.top;
+            this.mouse.x = event.clientX - rect.left;
+            this.mouse.y = event.clientY - rect.top;
         });
 
         canvas.addEventListener("mousedown", (event) => {
@@ -26,8 +28,14 @@ class Input {
         });
     }
 
-    getKeyDown(key) {
+    getKeyHeld(key) {
         return this.heldKeys.has(key); 
+    }
+
+    getKeyDown(key) {
+        const pressed = this.downKeys.has(key);
+        this.downKeys.delete(key);
+        return pressed;
     }
 
     consumeClick() {

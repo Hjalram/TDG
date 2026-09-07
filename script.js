@@ -529,8 +529,8 @@ function closestTileToCursor(tilePos) {
     for (let i = 0; i < tilePos.length; i++) {
         let transformed = cameraSpace(tilePos[i]);
 
-        const deltaX = transformed.x - mouse.x;
-        const deltaY = transformed.y - mouse.y;
+        const deltaX = transformed.x - input.mouse.x;
+        const deltaY = transformed.y - input.mouse.y;
         const dist = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
         dists.push(dist);
@@ -573,13 +573,31 @@ function drawSelection(tilePos) {
     //return lowestIndex;
 }
 
+//let buildMode, inventoryMode;
 function gameLoop() {
-    if (moveRightKey) camera.x += camera.speedX;
-    if (moveLeftKey) camera.x -= camera.speedX;
-    if (moveUpKey) camera.y -= camera.speedY;
-    if (moveDownKey) camera.y += camera.speedY;
-    if (spaceKey) camera.zoom -= 0.1;
-    if (shiftKey) camera.zoom += 0.1;
+    if (input.getKeyHeld("d")) camera.x += camera.speedX;
+    if (input.getKeyHeld("a")) camera.x -= camera.speedX;
+    if (input.getKeyHeld("w")) camera.y -= camera.speedY;
+    if (input.getKeyHeld("s")) camera.y += camera.speedY;
+    if (input.getKeyHeld(" ")) camera.zoom -= 0.1;
+    if (input.getKeyHeld("Shift")) camera.zoom += 0.1;
+
+    
+    if (input.getKeyDown("q")) {
+        if (!gameState.getBuildMode()) gameState.setBuildMode(true);
+        else gameState.setBuildMode(false);
+    }
+
+    if (input.getKeyDown("e")) {
+        if (!gameState.getInventoryMode()) gameState.setInventoryMode(true);
+        else gameState.setInventoryMode(false);
+    }
+
+    /*if (input.getKeyDown("e")) {
+        if (!inventoryMode) inventoryMode = true;
+        else inventoryMode = false;
+    }*/
+
     
     tileScale = 10 + camera.zoom;
     tileSize = 16 * tileScale;
@@ -587,7 +605,7 @@ function gameLoop() {
     //tilePositions = ;
     drawTilemapLayer(tilePositions);
     drawSafezone(tilePositions);
-    if (buildMode || selectedRobot) drawSelection(tilePositions);
+    if (selectedRobot || gameState.getBuildMode()) drawSelection(tilePositions); //  ||buildMode
 
     turrets.forEach(turret => {
         //turret.draw(); 
@@ -611,7 +629,7 @@ function gameLoop() {
     });
 
 
-    if (inventoryMode) inventory.draw();
+    if (gameState.getInventoryMode()) inventory.draw();
 
     frameCount += 1;
     if (frameCount == 300) {
@@ -624,8 +642,8 @@ function gameLoop() {
         frameCount = 0;
     }
 
-    if (mouseClick) {
-        if (buildMode && inventory.resources.turrets > 0) {
+    if (input.consumeClick()) {
+        if (gameState.getBuildMode() && inventory.resources.turrets > 0) {
             const closestIndex = closestTileToCursor(tilePositions);
             turrets.push(new Turret(tilePositions[closestIndex]));
             entities = enemies.concat(turrets, robots);
@@ -636,7 +654,7 @@ function gameLoop() {
         else {
             let change = false;
             robots.forEach(rob => {
-                const d = distance(worldSpace(mouse), rob.pos);
+                const d = distance(worldSpace(input.mouse), rob.pos);
                 if (d < 1 && rob.alive) {
                     if (rob !== selectedRobot) {
                         if (selectedRobot) {
@@ -661,7 +679,7 @@ function gameLoop() {
             }
         }
         
-        mouseClick = false;
+        //mouseClick = false;
     }
 }
 
@@ -687,11 +705,14 @@ function optionsLoop() {
     
 }
 
+import { Input } from "./input/Input.js";
+import { GameState } from "./game/GameState.js";
+
 let turrets = [];
 let enemies = [];
 let robots = [];
 let entities = [];
-let gameState = "game";
+//let gameState = "game";
 let selectedRobot;
 let frameCount = 0;
 //let copper = 0;
@@ -700,6 +721,8 @@ const tilePositions = calculateTilePositions(tilemap);
 const button = new Button("PLAY", canvas.width/2, 400);
 const button2 = new Button("OPTIONS", canvas.width/2, 550);
 const inventory = new Inventory();
+const input = new Input(canvas);
+const gameState = new GameState();
 
 
 //enemies.push(new Enemy({x: 10, y: 10}));
@@ -721,14 +744,14 @@ entities.sort((a, b) => a.pos.y - b.pos.y);
 function update() {
     clear();
     
-    if (gameState == "menu") menuLoop();
-    if (gameState == "game") gameLoop();
-    if (gameState == "options") optionsLoop();
+    if (gameState.getState() == "menu") menuLoop();
+    if (gameState.getState() == "game") gameLoop();
+    if (gameState.getState() == "options") optionsLoop();
     
     requestAnimationFrame(update);
 }
 
-
+/*
 let moveRightKey = false;
 let moveUpKey = false;
 let moveLeftKey = false;
@@ -802,6 +825,6 @@ window.addEventListener("error", (event) => {
 
 addEventListener("unhandledrejection", (event) => {
   alert(`Promise error: ${event.reason?.message || event.reason}`);
-});
+});*/
 
 update();
