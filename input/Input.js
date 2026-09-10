@@ -28,6 +28,27 @@ export class Input {
         });
     }
 
+    closestTileToCursor(canvas, camera, tilemap) {
+        let dists = [];
+
+        for (let i = 0; i < tilemap.tileArray.length; i++) {
+            let transformed = camera.cameraSpace(canvas, tilemap.tileArray[i]);
+
+            const deltaX = transformed.x - this.mouse.x;
+            const deltaY = transformed.y - this.mouse.y;
+            const dist = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+
+            dists.push(dist);
+        }
+
+        const lowestIndex = dists.indexOf(Math.min(...dists));
+
+        return {
+            index: lowestIndex,
+            pos: tilemap.tileArray[lowestIndex]
+        };
+    }
+
     getKeyHeld(key) {
         return this.heldKeys.has(key); 
     }
@@ -36,6 +57,10 @@ export class Input {
         const pressed = this.downKeys.has(key);
         this.downKeys.delete(key);
         return pressed;
+    }
+
+    resetKeysDown() {
+        this.downKeys.clear();
     }
 
     consumeClick() {
