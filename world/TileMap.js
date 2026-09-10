@@ -103,6 +103,20 @@ export class TileMap {
                 camera.tileSize
             );
             
+            
+            // Debug Dots
+            /*const data = "x: " + this.tileArray[i].x + ", y: " + this.tileArray[i].y;
+            //const data = distance(this.tileArray[i], worldSpace(mouse));
+            ctx.font = "10px Arial";
+            ctx.fillStyle = "white";
+            ctx.fillText(data, transformed.x-10, transformed.y);*/
+        }
+    }
+
+    drawSelection(renderer, camera) {
+        for (let i = 0; i < this.tileArray.length; i++) {
+            const transformed = camera.cameraSpace(renderer.canvas, this.tileArray[i]);
+
             if (i === this.selectedTile.index) {
                 renderer.ctx.drawImage(
                     this.selectionImg, 
@@ -112,14 +126,6 @@ export class TileMap {
                     camera.tileSize
                 );
             }
-            
-            
-            // Debug Dots
-            /*const data = "x: " + this.tileArray[i].x + ", y: " + this.tileArray[i].y;
-            //const data = distance(this.tileArray[i], worldSpace(mouse));
-            ctx.font = "10px Arial";
-            ctx.fillStyle = "white";
-            ctx.fillText(data, transformed.x-10, transformed.y);*/
         }
     }
 }

@@ -67,6 +67,7 @@ export class Game {
     render() {
         this.renderer.clear();
         this.tilemap.draw(this.renderer, this.camera);
+        this.tilemap.drawSelection(this.renderer, this.camera);
         this.robot.draw(this.renderer, this.camera);
     }
 }
